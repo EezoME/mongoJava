@@ -43,7 +43,7 @@ public class WelcomeForm extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(rootPanel);
         initialize();
-        setSize(260, 155);
+        setSize(340, 155);
         setLocationRelativeTo(null);
         setVisible(true);
 
@@ -126,7 +126,7 @@ public class WelcomeForm extends JFrame {
     }
 
     private void runMainForm(User user) {
-        MainForm.main(user);
+        MainForm.main(user, mongo);
         this.setVisible(false);
     }
 
@@ -152,7 +152,7 @@ public class WelcomeForm extends JFrame {
             passwordFieldConfirm.setVisible(false);
             signUpButton.setEnabled(false);
         } else {
-            setSize(320, 260);
+            setSize(340, 260);
             labelName.setVisible(true);
             labelPasswordConfirm.setVisible(true);
             textFieldName.setVisible(true);

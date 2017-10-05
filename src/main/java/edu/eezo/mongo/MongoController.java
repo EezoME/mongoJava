@@ -86,8 +86,8 @@ public class MongoController {
         return database.getCollection(collectionName);
     }
 
-    public void setCurrentCollection(MongoCollection<Document> collection) {
-        currentCollection = collection;
+    public void setCurrentCollection(String collectionName) {
+        currentCollection = database.getCollection(collectionName);
     }
 
     public MongoCollection<Document> getCollection(String collectionName) {
@@ -123,6 +123,10 @@ public class MongoController {
 
     public FindIterable<Document> getDocuments(MongoCollection<Document> collection, Bson filter) {
         return collection.find(filter);
+    }
+
+    public FindIterable<Document> getAllDocuments() {
+        return currentCollection.find();
     }
 
     public FindIterable<Document> getAllDocuments(MongoCollection<Document> collection) {

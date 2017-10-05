@@ -12,6 +12,7 @@ public class User extends AbstractEntity {
     private String name;
     private String login;
     private String password;
+    private boolean isAdmin;
 
     private List<Book> favoriteBooks;
     private List<Book> readBooks;
@@ -26,13 +27,13 @@ public class User extends AbstractEntity {
         this.password = password;
 
         if (favoriteBooks == null) {
-            this.favoriteBooks = new ArrayList<Book>();
+            this.favoriteBooks = new ArrayList<>();
         } else {
             this.favoriteBooks = favoriteBooks;
         }
 
         if (readBooks == null) {
-            this.readBooks = new ArrayList<Book>();
+            this.readBooks = new ArrayList<>();
         } else {
             this.readBooks = readBooks;
         }
@@ -106,6 +107,10 @@ public class User extends AbstractEntity {
 
     public void setReadBooks(List<Book> readBooks) {
         this.readBooks = readBooks;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
     }
 
     @Override
