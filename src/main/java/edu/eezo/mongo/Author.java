@@ -14,9 +14,9 @@ import java.util.List;
  */
 public class Author extends AbstractEntity {
     private String name;
-    private List<Book> books;
+    private List<String> books;
 
-    public Author(String name, List<Book> books) {
+    public Author(String name, List<String> books) {
         this.name = name;
         this.books = books;
     }
@@ -27,13 +27,13 @@ public class Author extends AbstractEntity {
 
     public static Author makeInstanceFromDocument(Document document) {
         String authorName = "";
-        List<Book> authorBooks = null;
+        List<String> authorBooks = null;
 
         if (document.containsKey("name")) {
             authorName = document.getString("name");
         }
         if (document.containsKey("books")) {
-            authorBooks = (List<Book>) document.get("books");
+            authorBooks = (List<String>) document.get("books");
         }
 
         return new Author(authorName, authorBooks);
@@ -73,11 +73,11 @@ public class Author extends AbstractEntity {
         this.name = name;
     }
 
-    public List<Book> getBooks() {
+    public List<String> getBooks() {
         return books;
     }
 
-    public void setBooks(List<Book> books) {
+    public void setBooks(List<String> books) {
         this.books = books;
     }
 

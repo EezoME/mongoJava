@@ -42,6 +42,14 @@ public class MongoController {
         return new BsonDocument(bsonDocumentList);
     }
 
+//    public static List<Document> makeBooksMongoList(List<String> entities) {
+//        List<Document> documents = new ArrayList<>();
+//        for (int i = 0, length = entities.size(); i < length; i++) {
+//            documents.add(entities.get(i));
+//        }
+//        return documents;
+//    }
+
     static MongoController getDefaultInstance() {
         Properties prop = new Properties();
         prop.setProperty("host", "localhost");
@@ -104,16 +112,16 @@ public class MongoController {
         currentCollection.insertOne(document);
     }
 
+    public void addDocument(String collection, Document document) {
+        getCollection(collection).insertOne(document);
+    }
+
     public void addDocuments(List<? extends Document> documents) {
         currentCollection.insertMany(documents);
     }
 
-    public void addDocumentIntoCollection(MongoCollection<Document> collection, Document document) {
-        collection.insertOne(document);
-    }
-
-    public void addDocumentsIntoCollection(MongoCollection<Document> collection, List<? extends Document> documents) {
-        collection.insertMany(documents);
+    public void addDocuments(String collection, List<? extends Document> documents) {
+        getCollection(collection).insertMany(documents);
     }
 
     public FindIterable<Document> getDocuments(Bson filter) {
@@ -128,8 +136,8 @@ public class MongoController {
         return currentCollection.find();
     }
 
-    public FindIterable<Document> getAllDocuments(MongoCollection<Document> collection) {
-        return collection.find();
+    public FindIterable<Document> getAllDocuments(String collection) {
+        return getCollection(collection).find();
     }
 
     /* Others */

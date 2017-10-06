@@ -3,8 +3,7 @@ package edu.eezo.mongo;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 
 /**
  * Created by eezo33 on 05.10.2017.
@@ -27,7 +26,9 @@ public class MainForm extends JFrame {
     private User loggedUser;
     private MongoController mongo;
 
-    public MainForm(User user, MongoController mongoController){
+    private boolean editMode = false;
+
+    public MainForm(User user, MongoController mongoController) {
         super("LIBRARY");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(rootPanel);
@@ -51,22 +52,63 @@ public class MainForm extends JFrame {
                 showAllAuthors();
             }
         });
+
+        addNewBookButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (editMode) {
+                    int row = table.getSelectedRow();
+                    Book book = new Book(table.getValueAt(row, 0).toString(),
+                            (Author) table.getValueAt(row, 1),
+                            (int) table.getValueAt(row, 2),
+                            table.getValueAt(row, 3).toString(),
+                            (double) table.getValueAt(row, 4));
+                    callBookGUI(book);
+                } else {
+                    callBookGUI(null);
+                }
+            }
+        });
+
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                if (table.getSelectedRowCount() == 1) {
+                    editMode = true;
+                    addNewBookButton.setText("Edit Sel. Book");
+                    addNewBookButton.setToolTipText("Edit Selected Book");
+                }
+            }
+        });
+
+        table.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                super.focusLost(e);
+                editMode = false;
+                addNewBookButton.setText("Add New Book");
+                addNewBookButton.setToolTipText("or Change Selected");
+            }
+        });
     }
 
     private void showAllBooks() {
-        mongo.setCurrentCollection("books");
-        java.util.List<Book> bookList = Book.makeListFromIterable(mongo.getAllDocuments());
+        java.util.List<Book> bookList = Book.makeListFromIterable(mongo.getAllDocuments("books"));
         Book.displayDataOnTable(table, bookList);
     }
 
-    private void showAllAuthors(){
-        mongo.setCurrentCollection("authors");
-        java.util.List<Author> authorList = Author.makeListFromIterable(mongo.getAllDocuments());
+    private void showAllAuthors() {
+        java.util.List<Author> authorList = Author.makeListFromIterable(mongo.getAllDocuments("authors"));
         Author.displayDataOnTable(table, authorList);
     }
 
+    private void callBookGUI(Book book) {
+        BookGUI.main(book, mongo);
+    }
 
-    private void initialize(){
+
+    private void initialize() {
         if (loggedUser == null) {
             makeGuestView();
             labelLogin.setText("You logged in as guest.");
@@ -78,7 +120,7 @@ public class MainForm extends JFrame {
         }
     }
 
-    private void makeGuestView(){
+    private void makeGuestView() {
         makeSimpleUserView();
         simpleUserPanel.setVisible(false);
     }

@@ -28,7 +28,7 @@ public class Book extends AbstractEntity {
     }
 
     public Document generateDocument() {
-        return new Document("title", title).append("author", author.toString()).append("year", year).
+        return new Document("title", title).append("author", author.generateDocument()).append("year", year).
                 append("genre", genre).append("rating", rating);
     }
 
@@ -43,7 +43,7 @@ public class Book extends AbstractEntity {
             bookTitle = document.getString("title");
         }
         if (document.containsKey("author")) {
-            bookAuthor = (Author) document.get("author");
+            bookAuthor = Author.makeInstanceFromDocument((Document) document.get("author"));
         }
         if (document.containsKey("year")) {
             bookYear = document.getInteger("year");
