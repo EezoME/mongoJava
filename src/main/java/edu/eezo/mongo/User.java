@@ -1,5 +1,7 @@
 package edu.eezo.mongo;
 
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCursor;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -67,6 +69,19 @@ public class User extends AbstractEntity {
         }
 
         return new User(userName, userLogin, userPassword, userFavoriteBooks, userReadBooks);
+    }
+
+    public static List<User> makeListFromIterable(FindIterable<Document> users) {
+        MongoCursor<Document> iterator = users.iterator();
+        List<User> userList = new ArrayList<>();
+        while (iterator.hasNext()) {
+            userList.add(makeInstanceFromDocument(iterator.next()));
+        }
+        return userList;
+    }
+
+    public static String[] getTableColumnIdentifiers() {
+        return new String[]{"Name", "Login", "Password", "Is Admin"};
     }
 
     public String getName() {

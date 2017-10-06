@@ -4,6 +4,8 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
 import org.bson.Document;
 
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,6 +69,22 @@ public class Book extends AbstractEntity {
 
     public static String[] getTableColumnIdentifiers(){
         return new String[]{"Title", "Author", "Year", "Genre", "Rating"};
+    }
+
+
+    public static void displayDataOnTable(JTable table, java.util.List<Book> bookList) {
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        model.setColumnIdentifiers(getTableColumnIdentifiers());
+        model.setRowCount(0);
+
+        for (int i = 0, length = bookList.size(); i < length; i++) {
+            model.setRowCount(i+1);
+            model.setValueAt(bookList.get(i).getTitle(), i, 0);
+            model.setValueAt(bookList.get(i).getAuthor(), i, 1);
+            model.setValueAt(bookList.get(i).getYear(), i, 2);
+            model.setValueAt(bookList.get(i).getGenre(), i, 3);
+            model.setValueAt(bookList.get(i).getRating(), i, 4);
+        }
     }
 
     public String getTitle() {

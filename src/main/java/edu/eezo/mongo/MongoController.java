@@ -2,7 +2,6 @@ package edu.eezo.mongo;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
-import com.mongodb.MongoSocketException;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -13,7 +12,6 @@ import org.bson.BsonString;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.net.ConnectException;
 import java.util.*;
 
 /**
@@ -29,12 +27,13 @@ public class MongoController {
                 prop.getProperty("dbname"), prop.getProperty("password").toCharArray());
         mongoClient = new MongoClient(new ServerAddress(prop.getProperty("host"), Integer.parseInt(prop.getProperty("port"))), Arrays.asList(credential));
         database = mongoClient.getDatabase(prop.getProperty("dbname"));
+        checkForNecessaryCollections(new String[]{"users", "books", "authors"});
         currentCollection = database.getCollection(prop.getProperty("table"));
     }
 
     public static Bson getBsonFilterFromMap(Map<String, String> map) {
         Set<String> keys = map.keySet();
-        java.util.List<BsonElement> bsonDocumentList = new ArrayList<BsonElement>();
+        java.util.List<BsonElement> bsonDocumentList = new ArrayList<>();
 
         for (String key : keys) {
             bsonDocumentList.add(new BsonElement(key, new BsonString(map.get(key))));
@@ -131,5 +130,16 @@ public class MongoController {
 
     public FindIterable<Document> getAllDocuments(MongoCollection<Document> collection) {
         return collection.find();
+    }
+
+    /* Others */
+
+    private void checkForNecessaryCollections(String[] necessaryCollections) {
+        for (int i = 0; i < necessaryCollections.length; i++) {
+            if (database.getCollection(necessaryCollections[i]) == null) {
+                createCollection(necessaryCollections[i]);
+                System.out.println("Missed collection '" + necessaryCollections[i] + "' was created.");
+            }
+        }
     }
 }

@@ -41,7 +41,14 @@ public class MainForm extends JFrame {
         showAllBooksButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //
+                showAllBooks();
+            }
+        });
+
+        showAllAuthorsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showAllAuthors();
             }
         });
     }
@@ -49,14 +56,15 @@ public class MainForm extends JFrame {
     private void showAllBooks() {
         mongo.setCurrentCollection("books");
         java.util.List<Book> bookList = Book.makeListFromIterable(mongo.getAllDocuments());
+        Book.displayDataOnTable(table, bookList);
     }
 
-    private void displayDataOnTable(java.util.List<? extends AbstractEntity> entitiesList) {
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
-        model.setColumnIdentifiers(Book.getTableColumnIdentifiers());
-        model.setRowCount(0);
-        // list all entities
+    private void showAllAuthors(){
+        mongo.setCurrentCollection("authors");
+        java.util.List<Author> authorList = Author.makeListFromIterable(mongo.getAllDocuments());
+        Author.displayDataOnTable(table, authorList);
     }
+
 
     private void initialize(){
         if (loggedUser == null) {
