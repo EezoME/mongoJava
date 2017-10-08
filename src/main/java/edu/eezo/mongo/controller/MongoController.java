@@ -1,4 +1,4 @@
-package edu.eezo.mongo;
+package edu.eezo.mongo.controller;
 
 import com.mongodb.*;
 import com.mongodb.client.FindIterable;
@@ -32,6 +32,7 @@ public class MongoController {
      * <li>"password": "..."</li>
      * <li>"table": "..."</li>
      * </ul>
+     *
      * @param prop defined properties
      */
     public MongoController(Properties prop) {
@@ -50,6 +51,7 @@ public class MongoController {
 
     /**
      * Returns a Bson object, constructed with passed filter represented as map.
+     *
      * @param map filter
      * @return a BsonDocument object
      */
@@ -66,6 +68,7 @@ public class MongoController {
 
     /**
      * Returns a Bson object, constructed with passed filter represented as enumeration of parameters.
+     *
      * @param strings filter
      * @return a BsonDocument object
      */
@@ -80,7 +83,7 @@ public class MongoController {
         return new BsonDocument(bsonDocumentList);
     }
 
-    static MongoController getDefaultInstance() {
+    public static MongoController getDefaultInstance() {
         Properties prop = new Properties();
         prop.setProperty("host", "localhost");
         prop.setProperty("port", "27017");
@@ -121,13 +124,8 @@ public class MongoController {
 
     /* COLLECTION API */
 
-    public MongoCollection<Document> createCollection(String collectionName) {
+    public void createCollection(String collectionName) {
         database.createCollection(collectionName);
-        return database.getCollection(collectionName);
-    }
-
-    public void setCurrentCollection(String collectionName) {
-        currentCollection = database.getCollection(collectionName);
     }
 
     public MongoCollection<Document> getCollection(String collectionName) {

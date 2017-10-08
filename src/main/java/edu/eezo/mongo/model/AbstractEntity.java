@@ -1,6 +1,5 @@
-package edu.eezo.mongo;
+package edu.eezo.mongo.model;
 
-import com.mongodb.client.FindIterable;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -11,8 +10,12 @@ import java.util.List;
  * Created by eezo33 on 05.10.2017.
  */
 public abstract class AbstractEntity extends Document {
-    public abstract Document generateDocument();
-
+    /**
+     * Makes a list of string from table cell object.
+     *
+     * @param cell table cell
+     * @return a list of strings
+     */
     public static List<String> parseTableCell(Object cell) {
         List<String> strings;
         try {
@@ -42,28 +45,20 @@ public abstract class AbstractEntity extends Document {
         return strings;
     }
 
+    /**
+     * Generates a Document object according to current classes fields.
+     *
+     * @return a Document object
+     */
+    public abstract Document generateDocument();
+
     /* List of static methods that must be overridden */
-
-    public static AbstractEntity makeInstanceFromDocument(Document document) {
-        return new AbstractEntity() {
-            @Override
-            public Document generateDocument() {
-                return null;
-            }
-        };
-    }
-
-    public static List<? extends AbstractEntity> makeListFromIterable(FindIterable<Document> entities) {
-        return new ArrayList<>();
-    }
-
-    public static String[] getTableColumnIdentifiers() {
-        return null;
-    }
-
-    /* Also
+    /*
+    public static <? extends AbstractEntity> makeInstanceFromDocument(Document document) {}
+    public static List<? extends AbstractEntity> makeListFromIterable(FindIterable<Document> entities) {}
+    public static String[] getTableColumnIdentifiers() {}
     public static void displayDataOnTable(JTable table, java.util.List<? extends AbstractEntity> entitiesList) {}
-    I know it's bad :( maybe I'll find better way */
 
-    /* End of list */
+    I know it's bad :( maybe I'll find better way.
+    */
 }

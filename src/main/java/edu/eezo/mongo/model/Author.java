@@ -1,4 +1,4 @@
-package edu.eezo.mongo;
+package edu.eezo.mongo.model;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
@@ -19,24 +19,6 @@ public class Author extends AbstractEntity {
     public Author(String name, List<String> books) {
         this.name = name;
         this.books = books;
-    }
-
-    public Document generateDocument() {
-        return new Document("name", name).append("books", books);
-    }
-
-    public static Author makeInstanceFromDocument(Document document) {
-        String authorName = "";
-        List<String> authorBooks = null;
-
-        if (document.containsKey("name")) {
-            authorName = document.getString("name");
-        }
-        if (document.containsKey("books")) {
-            authorBooks = (List<String>) document.get("books");
-        }
-
-        return new Author(authorName, authorBooks);
     }
 
     public static Author getInstanceFromTableCell(Object authorCell, Object bookCell) {
@@ -60,22 +42,39 @@ public class Author extends AbstractEntity {
         return authorList;
     }
 
-    public static String[] getTableColumnIdentifiers() {
-        return new String[]{"Name (!)", "Books"};
-    }
-
     public static void displayDataOnTable(JTable table, java.util.List<Author> authorList) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         model.setColumnIdentifiers(getTableColumnIdentifiers());
         model.setRowCount(0);
 
         for (int i = 0, length = authorList.size(); i < length; i++) {
-            model.setRowCount(i+1);
+            model.setRowCount(i + 1);
             model.setValueAt(authorList.get(i).getName(), i, 0);
             model.setValueAt(authorList.get(i).getBooks(), i, 1);
         }
     }
 
+    public static String[] getTableColumnIdentifiers() {
+        return new String[]{"Name (!)", "Books"};
+    }
+
+    public static Author makeInstanceFromDocument(Document document) {
+        String authorName = "";
+        List<String> authorBooks = null;
+
+        if (document.containsKey("name")) {
+            authorName = document.getString("name");
+        }
+        if (document.containsKey("books")) {
+            authorBooks = (List<String>) document.get("books");
+        }
+
+        return new Author(authorName, authorBooks);
+    }
+
+    public Document generateDocument() {
+        return new Document("name", name).append("books", books);
+    }
 
     public String getName() {
         return name;

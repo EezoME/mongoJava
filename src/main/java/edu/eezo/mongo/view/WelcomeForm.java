@@ -1,7 +1,8 @@
-package edu.eezo.mongo;
+package edu.eezo.mongo.view;
 
+import edu.eezo.mongo.controller.MongoController;
+import edu.eezo.mongo.model.User;
 import org.bson.BsonDocument;
-import org.bson.BsonElement;
 import org.bson.BsonString;
 
 import javax.swing.*;
@@ -10,7 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,8 +35,8 @@ public class WelcomeForm extends JFrame {
     private JLabel labelPasswordConfirm;
     private JLabel labelWarning;
 
-    private boolean isPanelHidden = true;
     private MongoController mongo;
+    private boolean isPanelHidden = true;
 
     public WelcomeForm() {
         super("LIBRARY");

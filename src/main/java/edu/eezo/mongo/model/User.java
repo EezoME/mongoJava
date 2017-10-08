@@ -1,4 +1,4 @@
-package edu.eezo.mongo;
+package edu.eezo.mongo.model;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
@@ -7,7 +7,6 @@ import org.bson.Document;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,7 +25,7 @@ public class User extends AbstractEntity {
         this(name, login, password, role, null, null);
     }
 
-    User(String name, String login, String password, String role, List<String> favoriteBooks, List<String> readBooks) {
+    public User(String name, String login, String password, String role, List<String> favoriteBooks, List<String> readBooks) {
         this.name = name;
         this.login = login;
         this.password = password;
@@ -43,11 +42,6 @@ public class User extends AbstractEntity {
         } else {
             this.readBooks = readBooks;
         }
-    }
-
-    public Document generateDocument() {
-        return new Document("name", name).append("login", login).append("password", password).
-                append("role", role).append("favoriteBooks", favoriteBooks).append("readBooks", readBooks);
     }
 
     public static User makeInstanceFromDocument(Document document) {
@@ -105,12 +99,41 @@ public class User extends AbstractEntity {
         }
     }
 
+    public static String[] getTableColumnIdentifiers() {
+        return new String[]{"Name", "Login (!)", "Password", "Role", "Fav. Books", "Books"};
+    }
+
+    public Document generateDocument() {
+        return new Document("name", name).append("login", login).append("password", password).
+                append("role", role).append("favoriteBooks", favoriteBooks).append("readBooks", readBooks);
+    }
+
     public void addToReadBooks(Book book) {
         addToList(readBooks, book);
     }
 
     public void addToFavoriteBooks(Book book) {
         addToList(favoriteBooks, book);
+    }
+
+    public void removeFromReadBooks(Book book) {
+        removeFromList(readBooks, book);
+    }
+
+    public void removeFromFavoriteBooks(Book book) {
+        removeFromList(favoriteBooks, book);
+    }
+
+    public boolean isInReadBookList(Book book) {
+        return isBookInList(readBooks, book);
+    }
+
+    public boolean isInFavoriteBookList(Book book) {
+        return isBookInList(favoriteBooks, book);
+    }
+
+    public boolean isAdmin() {
+        return role.toLowerCase().contains("admin");
     }
 
     private void addToList(List<String> bookList, Book book) {
@@ -130,14 +153,6 @@ public class User extends AbstractEntity {
         }
     }
 
-    public void removeFromReadBooks(Book book) {
-        removeFromList(readBooks, book);
-    }
-
-    public void removeFromFavoriteBooks(Book book) {
-        removeFromList(favoriteBooks, book);
-    }
-
     private void removeFromList(List<String> bookList, Book book) {
         if (book == null) {
             return;
@@ -149,14 +164,6 @@ public class User extends AbstractEntity {
                 break;
             }
         }
-    }
-
-    public boolean isInReadBookList(Book book) {
-        return isBookInList(readBooks, book);
-    }
-
-    public boolean isInFavoriteBookList(Book book) {
-        return isBookInList(favoriteBooks, book);
     }
 
     private boolean isBookInList(List<String> bookList, Book book) {
@@ -171,14 +178,6 @@ public class User extends AbstractEntity {
         }
 
         return false;
-    }
-
-    public boolean isAdmin() {
-        return role.contains("admin");
-    }
-
-    public static String[] getTableColumnIdentifiers() {
-        return new String[]{"Name", "Login (!)", "Password", "Role", "Fav. Books", "Books"};
     }
 
     public String getName() {
@@ -205,6 +204,14 @@ public class User extends AbstractEntity {
         this.password = password;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     public List<String> getFavoriteBooks() {
         return favoriteBooks;
     }
@@ -219,14 +226,6 @@ public class User extends AbstractEntity {
 
     public void setReadBooks(List<String> readBooks) {
         this.readBooks = readBooks;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 
     @Override

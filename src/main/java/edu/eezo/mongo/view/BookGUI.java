@@ -1,11 +1,14 @@
-package edu.eezo.mongo;
+package edu.eezo.mongo.view;
+
+import edu.eezo.mongo.controller.MongoController;
+import edu.eezo.mongo.model.Author;
+import edu.eezo.mongo.model.Book;
+import edu.eezo.mongo.model.User;
 
 import javax.swing.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class BookGUI extends JDialog {
     private JPanel contentPane;

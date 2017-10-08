@@ -1,4 +1,4 @@
-package edu.eezo.mongo;
+package edu.eezo.mongo.model;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
@@ -25,11 +25,6 @@ public class Book extends AbstractEntity {
         this.year = year;
         this.genre = genre;
         this.rating = rating;
-    }
-
-    public Document generateDocument() {
-        return new Document("title", title).append("author", author.generateDocument()).append("year", year).
-                append("genre", genre).append("rating", rating);
     }
 
     public static Book makeInstanceFromDocument(Document document) {
@@ -89,7 +84,6 @@ public class Book extends AbstractEntity {
         return new String[]{"Title (!)", "Author", "Year", "Genre", "Rating"};
     }
 
-
     public static void displayDataOnTable(JTable table, java.util.List<Book> bookList) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         model.setColumnIdentifiers(getTableColumnIdentifiers());
@@ -107,6 +101,11 @@ public class Book extends AbstractEntity {
             model.setValueAt(bookList.get(i).getGenre(), i, 3);
             model.setValueAt(bookList.get(i).getRating(), i, 4);
         }
+    }
+
+    public Document generateDocument() {
+        return new Document("title", title).append("author", author.generateDocument()).append("year", year).
+                append("genre", genre).append("rating", rating);
     }
 
     public String getTitle() {

@@ -1,5 +1,9 @@
-package edu.eezo.mongo;
+package edu.eezo.mongo.view;
 
+import edu.eezo.mongo.controller.MongoController;
+import edu.eezo.mongo.model.Author;
+import edu.eezo.mongo.model.Book;
+import edu.eezo.mongo.model.User;
 import org.bson.conversions.Bson;
 
 import javax.swing.*;
@@ -40,7 +44,7 @@ public class MainForm extends JFrame {
         loggedUser = user;
         mongo = mongoController;
         initialize();
-        setSize(685, 380);
+        setSize(685, 410);
         setLocationRelativeTo(null);
         setVisible(true);
 
@@ -141,6 +145,20 @@ public class MainForm extends JFrame {
                 deleteSelectedRow();
             }
         });
+    }
+
+    private void initialize() {
+        if (loggedUser == null) {
+            makeGuestView();
+            labelLogin.setText("You logged in as guest.");
+        } else if (!loggedUser.isAdmin()) {
+            makeSimpleUserView();
+            labelLogin.setText("You logged in as " + loggedUser.getName());
+        } else {
+            labelLogin.setText("You logged in as " + loggedUser.getName() + " (privileged user)");
+        }
+
+        editSelectedBookButton.setEnabled(false);
     }
 
     private void showAllBooks() {
@@ -314,21 +332,6 @@ public class MainForm extends JFrame {
         BookGUI.main(book, mongo, loggedUser);
     }
 
-
-    private void initialize() {
-        if (loggedUser == null) {
-            makeGuestView();
-            labelLogin.setText("You logged in as guest.");
-        } else if (!loggedUser.isAdmin()) {
-            makeSimpleUserView();
-            labelLogin.setText("You logged in as " + loggedUser.getName());
-        } else {
-            labelLogin.setText("You logged in as " + loggedUser.getName() + " (privileged user)");
-        }
-
-        editSelectedBookButton.setEnabled(false);
-    }
-
     private void makeGuestView() {
         makeSimpleUserView();
         simpleUserPanel.setVisible(false);
@@ -338,7 +341,7 @@ public class MainForm extends JFrame {
         adminPanel.setVisible(false);
     }
 
-    public static void main(final User user, final MongoController mongo) {
+    static void main(final User user, final MongoController mongo) {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new MainForm(user, mongo);
