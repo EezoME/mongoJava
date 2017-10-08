@@ -4,6 +4,7 @@ import com.mongodb.client.FindIterable;
 import org.bson.Document;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -12,6 +13,34 @@ import java.util.List;
 public abstract class AbstractEntity extends Document {
     public abstract Document generateDocument();
 
+    public static List<String> parseTableCell(Object cell) {
+        List<String> strings;
+        try {
+            strings = (List<String>) cell;
+        } catch (ClassCastException e) {
+            String cellAsString = cell.toString();
+
+            if (cellAsString.isEmpty()) {
+                return new ArrayList<>();
+            }
+
+            int startIndex = cellAsString.indexOf('['),
+                    endIndex = cellAsString.lastIndexOf(']');
+            startIndex = startIndex >= 0 ? startIndex + 1 : 0;
+            endIndex = endIndex != -1 ? endIndex : cellAsString.length() - 1;
+
+            if (startIndex == endIndex) {
+                return new ArrayList<>();
+            }
+
+            cellAsString = cellAsString.substring(startIndex, endIndex);
+            strings = Arrays.asList(cellAsString.split(","));
+            for (int i = 0; i < strings.size(); i++) {
+                strings.set(i, strings.get(i).trim());
+            }
+        }
+        return strings;
+    }
 
     /* List of static methods that must be overridden */
 

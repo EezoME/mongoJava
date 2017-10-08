@@ -4,7 +4,10 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
 import org.bson.Document;
 
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -14,19 +17,20 @@ public class User extends AbstractEntity {
     private String name;
     private String login;
     private String password;
-    private boolean isAdmin;
+    private String role;
 
     private List<String> favoriteBooks;
     private List<String> readBooks;
 
-    public User(String name, String login, String password) {
-        this(name, login, password, null, null);
+    public User(String name, String login, String password, String role) {
+        this(name, login, password, role, null, null);
     }
 
-    private User(String name, String login, String password, List<String> favoriteBooks, List<String> readBooks) {
+    User(String name, String login, String password, String role, List<String> favoriteBooks, List<String> readBooks) {
         this.name = name;
         this.login = login;
         this.password = password;
+        this.role = role;
 
         if (favoriteBooks == null) {
             this.favoriteBooks = new ArrayList<>();
@@ -43,13 +47,14 @@ public class User extends AbstractEntity {
 
     public Document generateDocument() {
         return new Document("name", name).append("login", login).append("password", password).
-                append("favoriteBooks", favoriteBooks).append("readBooks", readBooks);
+                append("role", role).append("favoriteBooks", favoriteBooks).append("readBooks", readBooks);
     }
 
     public static User makeInstanceFromDocument(Document document) {
         String userName = "";
         String userLogin = "";
         String userPassword = "";
+        String userRole = "";
         List<String> userFavoriteBooks = null;
         List<String> userReadBooks = null;
 
@@ -62,6 +67,9 @@ public class User extends AbstractEntity {
         if (document.containsKey("password")) {
             userPassword = document.getString("password");
         }
+        if (document.containsKey("role")) {
+            userRole = document.getString("role");
+        }
         if (document.containsKey("favoriteBooks")) {
             userFavoriteBooks = (List<String>) document.get("favoriteBooks");
         }
@@ -69,7 +77,7 @@ public class User extends AbstractEntity {
             userReadBooks = (List<String>) document.get("readBooks");
         }
 
-        return new User(userName, userLogin, userPassword, userFavoriteBooks, userReadBooks);
+        return new User(userName, userLogin, userPassword, userRole, userFavoriteBooks, userReadBooks);
     }
 
     public static List<User> makeListFromIterable(FindIterable<Document> users) {
@@ -79,6 +87,22 @@ public class User extends AbstractEntity {
             userList.add(makeInstanceFromDocument(iterator.next()));
         }
         return userList;
+    }
+
+    public static void displayDataOnTable(JTable table, java.util.List<User> userList) {
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        model.setColumnIdentifiers(getTableColumnIdentifiers());
+        model.setRowCount(0);
+
+        for (int i = 0, length = userList.size(); i < length; i++) {
+            model.setRowCount(i + 1);
+            model.setValueAt(userList.get(i).getName(), i, 0);
+            model.setValueAt(userList.get(i).getLogin(), i, 1);
+            model.setValueAt(userList.get(i).getPassword(), i, 2);
+            model.setValueAt(userList.get(i).getRole(), i, 3);
+            model.setValueAt(userList.get(i).getFavoriteBooks(), i, 4);
+            model.setValueAt(userList.get(i).getReadBooks(), i, 5);
+        }
     }
 
     public void addToReadBooks(Book book) {
@@ -149,8 +173,12 @@ public class User extends AbstractEntity {
         return false;
     }
 
+    public boolean isAdmin() {
+        return role.contains("admin");
+    }
+
     public static String[] getTableColumnIdentifiers() {
-        return new String[]{"Name", "Login", "Password", "Is Admin"};
+        return new String[]{"Name", "Login (!)", "Password", "Role", "Fav. Books", "Books"};
     }
 
     public String getName() {
@@ -193,8 +221,12 @@ public class User extends AbstractEntity {
         this.readBooks = readBooks;
     }
 
-    public boolean isAdmin() {
-        return isAdmin;
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     @Override

@@ -86,7 +86,7 @@ public class Book extends AbstractEntity {
     }
 
     public static String[] getTableColumnIdentifiers() {
-        return new String[]{"Title", "Author", "Year", "Genre", "Rating"};
+        return new String[]{"Title (!)", "Author", "Year", "Genre", "Rating"};
     }
 
 

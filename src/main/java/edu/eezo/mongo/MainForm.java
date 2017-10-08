@@ -1,5 +1,7 @@
 package edu.eezo.mongo;
 
+import org.bson.conversions.Bson;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -23,6 +25,7 @@ public class MainForm extends JFrame {
     private JPanel adminPanel;
     private JPanel simpleUserPanel;
     private JButton editSelectedBookButton;
+    private JButton deleteSelectedRowButton;
 
     private User loggedUser;
     private MongoController mongo;
@@ -37,7 +40,7 @@ public class MainForm extends JFrame {
         loggedUser = user;
         mongo = mongoController;
         initialize();
-        setSize(540, 380);
+        setSize(685, 380);
         setLocationRelativeTo(null);
         setVisible(true);
 
@@ -88,6 +91,7 @@ public class MainForm extends JFrame {
                 if (isBooksOnTable) {
                     editMode = table.getSelectedRowCount() == 1;
                     editSelectedBookButton.setEnabled(editMode);
+                    deleteSelectedRowButton.setEnabled(editMode);
                 }
             }
         });
@@ -105,12 +109,45 @@ public class MainForm extends JFrame {
                 showMyFavoriteBooks();
             }
         });
+
+        showAllUsersButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showAllUsers();
+            }
+        });
+
+        updateSelRowButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateRows(false);
+            }
+        });
+
+        allRowsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateRows(true);
+            }
+        });
+
+        deleteSelectedRowButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (table.getSelectedRow() == -1) {
+                    editSelectedBookButton.setEnabled(false);
+                    return;
+                }
+                deleteSelectedRow();
+            }
+        });
     }
 
     private void showAllBooks() {
         java.util.List<Book> bookList = Book.makeListFromIterable(mongo.getAllDocuments("books"));
         Book.displayDataOnTable(table, bookList);
         isBooksOnTable = true;
+        table.setToolTipText("Books");
     }
 
     private void showAllMyBooks() {
@@ -118,6 +155,7 @@ public class MainForm extends JFrame {
                 loggedUser.getReadBooks());
         Book.displayDataOnTable(table, bookList);
         isBooksOnTable = true;
+        table.setToolTipText("Books");
     }
 
     private void showMyFavoriteBooks() {
@@ -125,12 +163,151 @@ public class MainForm extends JFrame {
                 loggedUser.getFavoriteBooks());
         Book.displayDataOnTable(table, bookList);
         isBooksOnTable = true;
+        table.setToolTipText("Books");
     }
 
     private void showAllAuthors() {
         java.util.List<Author> authorList = Author.makeListFromIterable(mongo.getAllDocuments("authors"));
         Author.displayDataOnTable(table, authorList);
         isBooksOnTable = false;
+        table.setToolTipText("Authors");
+    }
+
+    private void showAllUsers() {
+        java.util.List<User> userList = User.makeListFromIterable(mongo.getAllDocuments("users"));
+        User.displayDataOnTable(table, userList);
+        isBooksOnTable = false;
+        table.setToolTipText("Users");
+    }
+
+    private void updateRows(boolean all) {
+        if (table.getSelectedRowCount() < 1) {
+            return;
+        }
+
+        switch (table.getToolTipText()) {
+            case "Books":
+                if (all) {
+                    updateAllBookRows();
+                } else {
+                    updateBookRows();
+                }
+                break;
+            case "Authors":
+                if (all) {
+                    updateAllAuthorRows();
+                } else {
+                    updateAuthorRows();
+                }
+                break;
+            case "Users":
+                if (all) {
+                    updateAllUserRows();
+                } else {
+                    updateUserRows();
+                }
+                break;
+        }
+    }
+
+    private void updateBookRows() {
+        int[] rows = table.getSelectedRows();
+        for (int row : rows) {
+            updateSingleBookRow(row);
+        }
+    }
+
+    private void updateAllBookRows() {
+        for (int i = 0; i < table.getRowCount(); i++) {
+            updateSingleBookRow(i);
+        }
+    }
+
+    private void updateSingleBookRow(int row) {
+        mongo.replaceDocument(
+                "books",
+                MongoController.getBsonFilterFormEnumeration("title", table.getValueAt(row, 0).toString()),
+                new Book(
+                        table.getValueAt(row, 0).toString(),
+                        Author.getInstanceFromTableCell(table.getValueAt(row, 1), table.getValueAt(row, 0)),
+                        (int) table.getValueAt(row, 2),
+                        table.getValueAt(row, 3).toString(),
+                        Double.parseDouble(table.getValueAt(row, 4).toString())
+                ).generateDocument()
+        );
+    }
+
+    private void updateAuthorRows() {
+        int[] rows = table.getSelectedRows();
+        for (int row : rows) {
+            updateSingleAuthorRow(row);
+        }
+    }
+
+    private void updateAllAuthorRows() {
+        for (int i = 0; i < table.getRowCount(); i++) {
+            updateSingleAuthorRow(i);
+        }
+    }
+
+    private void updateSingleAuthorRow(int row) {
+        mongo.replaceDocument(
+                "authors",
+                MongoController.getBsonFilterFormEnumeration("name", table.getValueAt(row, 0).toString()),
+                new Author(
+                        (String) table.getValueAt(row, 0),
+                        User.parseTableCell(table.getValueAt(row, 1))
+                ).generateDocument()
+        );
+    }
+
+    private void updateUserRows() {
+        int[] rows = table.getSelectedRows();
+        for (int row : rows) {
+            updateSingleUserRow(row);
+        }
+    }
+
+    private void updateAllUserRows() {
+        for (int i = 0; i < table.getRowCount(); i++) {
+            updateSingleUserRow(i);
+        }
+    }
+
+    private void updateSingleUserRow(int row) {
+        mongo.replaceDocument(
+                "users",
+                MongoController.getBsonFilterFormEnumeration("login", table.getValueAt(row, 1).toString()),
+                new User(
+                        (String) table.getValueAt(row, 0),
+                        (String) table.getValueAt(row, 1),
+                        (String) table.getValueAt(row, 2),
+                        (String) table.getValueAt(row, 3),
+                        User.parseTableCell(table.getValueAt(row, 4)),
+                        User.parseTableCell(table.getValueAt(row, 5))
+                ).generateDocument()
+        );
+    }
+
+    private void deleteSelectedRow() {
+        String collection = table.getToolTipText().toLowerCase();
+        Bson filter = null;
+        switch (collection) {
+            case "books":
+                filter = MongoController.getBsonFilterFormEnumeration("title", table.getValueAt(table.getSelectedRow(), 0).toString());
+                break;
+            case "authors":
+                filter = MongoController.getBsonFilterFormEnumeration("name", table.getValueAt(table.getSelectedRow(), 0).toString());
+                break;
+            case "users":
+                filter = MongoController.getBsonFilterFormEnumeration("login", table.getValueAt(table.getSelectedRow(), 1).toString());
+                break;
+        }
+        if (filter == null) {
+            return;
+        }
+        ((DefaultTableModel) table.getModel()).removeRow(table.getSelectedRow());
+        mongo.deleteDocument(collection, filter);
     }
 
     private void callBookGUI(Book book) {

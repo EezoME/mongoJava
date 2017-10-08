@@ -100,6 +100,7 @@ public class BookGUI extends JDialog {
         SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel();
         spinnerNumberModel.setMinimum(1600);
         spinnerNumberModel.setMaximum(2020);
+        spinnerNumberModel.setValue(1980);
         spinnerNumberModel.setStepSize(1);
         if (book != null) {
             spinnerNumberModel.setValue(book.getYear());

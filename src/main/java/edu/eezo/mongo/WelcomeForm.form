@@ -65,7 +65,7 @@
               </grid>
             </constraints>
             <properties>
-              <text value="eezo"/>
+              <text value="admin"/>
             </properties>
           </component>
           <component id="f526e" class="javax.swing.JLabel" binding="labelName">
@@ -99,7 +99,7 @@
               </grid>
             </constraints>
             <properties>
-              <text value="111"/>
+              <text value="1"/>
             </properties>
           </component>
           <component id="b4d59" class="javax.swing.JLabel" binding="labelPasswordConfirm">

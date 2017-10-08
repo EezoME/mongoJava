@@ -103,7 +103,7 @@ public class WelcomeForm extends JFrame {
             labelWarning.setVisible(false);
             if (checkConfirmPassword()) {
                 User newUser = new User(textFieldName.getText(), textFieldLogin.getText(),
-                        String.valueOf(passwordFieldLogIn.getPassword()));
+                        String.valueOf(passwordFieldLogIn.getPassword()), "user");
                 mongo.addDocument(newUser.generateDocument());
                 runMainForm(newUser);
             }

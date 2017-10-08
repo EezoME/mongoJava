@@ -39,6 +39,18 @@ public class Author extends AbstractEntity {
         return new Author(authorName, authorBooks);
     }
 
+    public static Author getInstanceFromTableCell(Object authorCell, Object bookCell) {
+        Author author;
+        try {
+            author = (Author) authorCell;
+        } catch (ClassCastException e) {
+            List<String> books = new ArrayList<>();
+            books.add(bookCell.toString());
+            author = new Author(authorCell.toString(), books);
+        }
+        return author;
+    }
+
     public static List<Author> makeListFromIterable(FindIterable<Document> authors) {
         MongoCursor<Document> iterator = authors.iterator();
         List<Author> authorList = new ArrayList<>();
@@ -49,7 +61,7 @@ public class Author extends AbstractEntity {
     }
 
     public static String[] getTableColumnIdentifiers() {
-        return new String[]{"Name", "Books"};
+        return new String[]{"Name (!)", "Books"};
     }
 
     public static void displayDataOnTable(JTable table, java.util.List<Author> authorList) {
