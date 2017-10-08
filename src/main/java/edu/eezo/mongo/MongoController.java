@@ -1,8 +1,6 @@
 package edu.eezo.mongo;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
+import com.mongodb.*;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -12,6 +10,7 @@ import org.bson.BsonString;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import javax.swing.*;
 import java.util.*;
 
 /**
@@ -22,18 +21,41 @@ public class MongoController {
     private MongoDatabase database;
     private MongoCollection<Document> currentCollection;
 
+    /**
+     * Makes a mongo object with defined properties.<br>
+     * Properties should be like this:
+     * <ul>
+     * <li>"host": "..."</li>
+     * <li>"port": "..."</li>
+     * <li>"dbname": "..."</li>
+     * <li>"login": "..."</li>
+     * <li>"password": "..."</li>
+     * <li>"table": "..."</li>
+     * </ul>
+     * @param prop defined properties
+     */
     public MongoController(Properties prop) {
-        MongoCredential credential = MongoCredential.createCredential(prop.getProperty("login"),
-                prop.getProperty("dbname"), prop.getProperty("password").toCharArray());
-        mongoClient = new MongoClient(new ServerAddress(prop.getProperty("host"), Integer.parseInt(prop.getProperty("port"))), Arrays.asList(credential));
-        database = mongoClient.getDatabase(prop.getProperty("dbname"));
-        checkForNecessaryCollections(new String[]{"users", "books", "authors"});
-        currentCollection = database.getCollection(prop.getProperty("table"));
+        try {
+            MongoCredential credential = MongoCredential.createCredential(prop.getProperty("login"),
+                    prop.getProperty("dbname"), prop.getProperty("password").toCharArray());
+            mongoClient = new MongoClient(new ServerAddress(prop.getProperty("host"), Integer.parseInt(prop.getProperty("port"))), Arrays.asList(credential));
+            database = mongoClient.getDatabase(prop.getProperty("dbname"));
+            checkForNecessaryCollections(new String[]{"users", "books", "authors"});
+            currentCollection = database.getCollection(prop.getProperty("table"));
+        } catch (MongoSocketException e) {
+            System.out.println(e.getMessage());
+            JOptionPane.showMessageDialog(null, "MongoDB server is not running.");
+        }
     }
 
+    /**
+     * Returns a Bson object, constructed with passed filter represented as map.
+     * @param map filter
+     * @return a BsonDocument object
+     */
     public static Bson getBsonFilterFromMap(Map<String, String> map) {
         Set<String> keys = map.keySet();
-        java.util.List<BsonElement> bsonDocumentList = new ArrayList<>();
+        List<BsonElement> bsonDocumentList = new ArrayList<>();
 
         for (String key : keys) {
             bsonDocumentList.add(new BsonElement(key, new BsonString(map.get(key))));
@@ -42,13 +64,21 @@ public class MongoController {
         return new BsonDocument(bsonDocumentList);
     }
 
-//    public static List<Document> makeBooksMongoList(List<String> entities) {
-//        List<Document> documents = new ArrayList<>();
-//        for (int i = 0, length = entities.size(); i < length; i++) {
-//            documents.add(entities.get(i));
-//        }
-//        return documents;
-//    }
+    /**
+     * Returns a Bson object, constructed with passed filter represented as enumeration of parameters.
+     * @param strings filter
+     * @return a BsonDocument object
+     */
+    public static Bson getBsonFilterFormEnumeration(String... strings) {
+        List<BsonElement> bsonDocumentList = new ArrayList<>();
+
+        for (int i = 0; i < strings.length; i++) {
+            bsonDocumentList.add(new BsonElement(strings[i], new BsonString(strings[i + 1])));
+            i++;
+        }
+
+        return new BsonDocument(bsonDocumentList);
+    }
 
     static MongoController getDefaultInstance() {
         Properties prop = new Properties();
@@ -81,6 +111,9 @@ public class MongoController {
         }
     }
 
+    /**
+     * Resets current database and closes a connection.
+     */
     public void close() {
         database = null;
         mongoClient.close();
@@ -116,6 +149,10 @@ public class MongoController {
         getCollection(collection).insertOne(document);
     }
 
+    public void replaceDocument(String collection, Bson filter, Document document) {
+        getCollection(collection).findOneAndReplace(filter, document);
+    }
+
     public void addDocuments(List<? extends Document> documents) {
         currentCollection.insertMany(documents);
     }
@@ -128,8 +165,8 @@ public class MongoController {
         return currentCollection.find(filter);
     }
 
-    public FindIterable<Document> getDocuments(MongoCollection<Document> collection, Bson filter) {
-        return collection.find(filter);
+    public FindIterable<Document> getDocuments(String collection, Bson filter) {
+        return getCollection(collection).find(filter);
     }
 
     public FindIterable<Document> getAllDocuments() {

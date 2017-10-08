@@ -42,7 +42,8 @@ public class User extends AbstractEntity {
     }
 
     public Document generateDocument() {
-        return new Document("name", name).append("login", login).append("password", password);
+        return new Document("name", name).append("login", login).append("password", password).
+                append("favoriteBooks", favoriteBooks).append("readBooks", readBooks);
     }
 
     public static User makeInstanceFromDocument(Document document) {

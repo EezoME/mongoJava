@@ -3,7 +3,9 @@ package edu.eezo.mongo;
 import javax.swing.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BookGUI extends JDialog {
     private JPanel contentPane;
@@ -14,17 +16,23 @@ public class BookGUI extends JDialog {
     private JSpinner spinnerYear;
     private JTextField textFieldGenre;
     private JSlider sliderRating;
+    private JCheckBox addToMyBooksCheckBox;
+    private JCheckBox markAsFavoriteCheckBox;
 
     private Book book;
     private MongoController mongo;
+    private User user;
 
-    public BookGUI(Book book, MongoController mongo) {
+    private String oldTitle = null;
+
+    public BookGUI(Book book, MongoController mongo, User user) {
         setContentPane(contentPane);
         setModal(true);
         setLocationRelativeTo(null);
         getRootPane().setDefaultButton(buttonOK);
         this.book = book;
         this.mongo = mongo;
+        this.user = user;
         initialize();
 
         buttonOK.addActionListener(new ActionListener() {
@@ -63,6 +71,7 @@ public class BookGUI extends JDialog {
         if (book != null) {
             textFieldTitle.setText(book.getTitle());
             textFieldGenre.setText(book.getGenre());
+            oldTitle = book.getTitle();
         }
     }
 
@@ -116,19 +125,23 @@ public class BookGUI extends JDialog {
         book.setYear((int) spinnerYear.getValue());
         book.setGenre(textFieldGenre.getText());
         book.setRating((double) sliderRating.getValue());
-        mongo.addDocument("books", book.generateDocument());
+
+        Map<String, String> map = new HashMap<>();
+        map.put("title", oldTitle);
+        mongo.replaceDocument("books", MongoController.getBsonFilterFromMap(map), book.generateDocument());
     }
 
     private void addNewBook() {
         book = new Book(
                 textFieldTitle.getText(),
-                null,
+                null, // author sets later, bc new author needs a book object
                 (int) spinnerYear.getValue(),
                 textFieldGenre.getText(),
                 (double) sliderRating.getValue()
         );
         book.setAuthor(getSelectedAuthor());
         mongo.addDocument("books", book.generateDocument());
+//        mongo.replaceDocument("users", MongoController.getBsonFilterFormEnumeration("favoriteBooks", ));
     }
 
     private Author getSelectedAuthor() {
@@ -150,8 +163,8 @@ public class BookGUI extends JDialog {
         }
     }
 
-    static void main(Book book, MongoController mongo) {
-        BookGUI dialog = new BookGUI(book, mongo);
+    static void main(Book book, MongoController mongo, User user) {
+        BookGUI dialog = new BookGUI(book, mongo, user);
         dialog.pack();
         dialog.setVisible(true);
     }

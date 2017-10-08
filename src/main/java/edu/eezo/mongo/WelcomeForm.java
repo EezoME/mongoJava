@@ -111,7 +111,7 @@ public class WelcomeForm extends JFrame {
     }
 
     private boolean checkForUser(boolean checkOnlyLogin) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("login", textFieldLogin.getText());
         if (!checkOnlyLogin) {
             map.put("password", String.valueOf(passwordFieldLogIn.getPassword()));

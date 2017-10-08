@@ -35,7 +35,7 @@ public class MainForm extends JFrame {
         loggedUser = user;
         mongo = mongoController;
         initialize();
-        setSize(260, 155);
+        setSize(540, 380);
         setLocationRelativeTo(null);
         setVisible(true);
 
@@ -104,7 +104,7 @@ public class MainForm extends JFrame {
     }
 
     private void callBookGUI(Book book) {
-        BookGUI.main(book, mongo);
+        BookGUI.main(book, mongo, loggedUser);
     }
 
 
