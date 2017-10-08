@@ -22,11 +22,13 @@ public class MainForm extends JFrame {
     private JButton showAllUsersButton;
     private JPanel adminPanel;
     private JPanel simpleUserPanel;
+    private JButton editSelectedBookButton;
 
     private User loggedUser;
     private MongoController mongo;
 
     private boolean editMode = false;
+    private boolean isBooksOnTable = false;
 
     public MainForm(User user, MongoController mongoController) {
         super("LIBRARY");
@@ -56,17 +58,26 @@ public class MainForm extends JFrame {
         addNewBookButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (editMode) {
-                    int row = table.getSelectedRow();
-                    Book book = new Book(table.getValueAt(row, 0).toString(),
-                            (Author) table.getValueAt(row, 1),
-                            (int) table.getValueAt(row, 2),
-                            table.getValueAt(row, 3).toString(),
-                            (double) table.getValueAt(row, 4));
-                    callBookGUI(book);
-                } else {
-                    callBookGUI(null);
+                callBookGUI(null);
+            }
+        });
+
+        editSelectedBookButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int row = table.getSelectedRow();
+                if (row == -1) {
+                    editSelectedBookButton.setEnabled(false);
+                    return;
                 }
+
+                callBookGUI(new Book(
+                        table.getValueAt(row, 0).toString(),
+                        (Author) table.getValueAt(row, 1),
+                        (int) table.getValueAt(row, 2),
+                        table.getValueAt(row, 3).toString(),
+                        (double) table.getValueAt(row, 4)
+                ));
             }
         });
 
@@ -74,21 +85,24 @@ public class MainForm extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                if (table.getSelectedRowCount() == 1) {
-                    editMode = true;
-                    addNewBookButton.setText("Edit Sel. Book");
-                    addNewBookButton.setToolTipText("Edit Selected Book");
+                if (isBooksOnTable) {
+                    editMode = table.getSelectedRowCount() == 1;
+                    editSelectedBookButton.setEnabled(editMode);
                 }
             }
         });
 
-        table.addFocusListener(new FocusAdapter() {
+        showAllMyBooksButton.addActionListener(new ActionListener() {
             @Override
-            public void focusLost(FocusEvent e) {
-                super.focusLost(e);
-                editMode = false;
-                addNewBookButton.setText("Add New Book");
-                addNewBookButton.setToolTipText("or Change Selected");
+            public void actionPerformed(ActionEvent e) {
+                showAllMyBooks();
+            }
+        });
+
+        showMyFavoriteBooksButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showMyFavoriteBooks();
             }
         });
     }
@@ -96,11 +110,27 @@ public class MainForm extends JFrame {
     private void showAllBooks() {
         java.util.List<Book> bookList = Book.makeListFromIterable(mongo.getAllDocuments("books"));
         Book.displayDataOnTable(table, bookList);
+        isBooksOnTable = true;
+    }
+
+    private void showAllMyBooks() {
+        java.util.List<Book> bookList = Book.filterListWithBookTitleList(Book.makeListFromIterable(mongo.getAllDocuments("books")),
+                loggedUser.getReadBooks());
+        Book.displayDataOnTable(table, bookList);
+        isBooksOnTable = true;
+    }
+
+    private void showMyFavoriteBooks() {
+        java.util.List<Book> bookList = Book.filterListWithBookTitleList(Book.makeListFromIterable(mongo.getAllDocuments("books")),
+                loggedUser.getFavoriteBooks());
+        Book.displayDataOnTable(table, bookList);
+        isBooksOnTable = true;
     }
 
     private void showAllAuthors() {
         java.util.List<Author> authorList = Author.makeListFromIterable(mongo.getAllDocuments("authors"));
         Author.displayDataOnTable(table, authorList);
+        isBooksOnTable = false;
     }
 
     private void callBookGUI(Book book) {
@@ -118,6 +148,8 @@ public class MainForm extends JFrame {
         } else {
             labelLogin.setText("You logged in as " + loggedUser.getName() + " (privileged user)");
         }
+
+        editSelectedBookButton.setEnabled(false);
     }
 
     private void makeGuestView() {

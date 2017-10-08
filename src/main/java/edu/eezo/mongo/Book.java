@@ -67,7 +67,25 @@ public class Book extends AbstractEntity {
         return bookList;
     }
 
-    public static String[] getTableColumnIdentifiers(){
+    public static List<Book> filterListWithBookTitleList(List<Book> bookList, List<String> bookTitleList) {
+        if (bookTitleList.isEmpty()) {
+            return null;
+        }
+
+        for (int i = bookList.size() - 1; i >= 0; i--) {
+            for (int j = 0; j < bookTitleList.size(); j++) {
+                if (!bookList.get(i).getTitle().equals(bookTitleList.get(j))) {
+                    bookList.remove(i);
+                    i--;
+                    break;
+                }
+            }
+        }
+
+        return bookList;
+    }
+
+    public static String[] getTableColumnIdentifiers() {
         return new String[]{"Title", "Author", "Year", "Genre", "Rating"};
     }
 
@@ -77,8 +95,12 @@ public class Book extends AbstractEntity {
         model.setColumnIdentifiers(getTableColumnIdentifiers());
         model.setRowCount(0);
 
+        if (bookList == null) {
+            return;
+        }
+
         for (int i = 0, length = bookList.size(); i < length; i++) {
-            model.setRowCount(i+1);
+            model.setRowCount(i + 1);
             model.setValueAt(bookList.get(i).getTitle(), i, 0);
             model.setValueAt(bookList.get(i).getAuthor(), i, 1);
             model.setValueAt(bookList.get(i).getYear(), i, 2);

@@ -61,6 +61,13 @@ public class BookGUI extends JDialog {
                 onCancel();
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+        addToMyBooksCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                markAsFavoriteCheckBox.setEnabled(addToMyBooksCheckBox.isSelected());
+            }
+        });
     }
 
     private void initialize() {
@@ -71,6 +78,9 @@ public class BookGUI extends JDialog {
         if (book != null) {
             textFieldTitle.setText(book.getTitle());
             textFieldGenre.setText(book.getGenre());
+            addToMyBooksCheckBox.setSelected(user.isInReadBookList(book));
+            markAsFavoriteCheckBox.setSelected(user.isInFavoriteBookList(book));
+            markAsFavoriteCheckBox.setEnabled(addToMyBooksCheckBox.isSelected());
             oldTitle = book.getTitle();
         }
     }
@@ -125,10 +135,8 @@ public class BookGUI extends JDialog {
         book.setYear((int) spinnerYear.getValue());
         book.setGenre(textFieldGenre.getText());
         book.setRating((double) sliderRating.getValue());
-
-        Map<String, String> map = new HashMap<>();
-        map.put("title", oldTitle);
-        mongo.replaceDocument("books", MongoController.getBsonFilterFromMap(map), book.generateDocument());
+        mongo.replaceDocument("books", MongoController.getBsonFilterFormEnumeration("title", oldTitle), book.generateDocument());
+        handleCheckboxes();
     }
 
     private void addNewBook() {
@@ -141,7 +149,7 @@ public class BookGUI extends JDialog {
         );
         book.setAuthor(getSelectedAuthor());
         mongo.addDocument("books", book.generateDocument());
-//        mongo.replaceDocument("users", MongoController.getBsonFilterFormEnumeration("favoriteBooks", ));
+        handleCheckboxes();
     }
 
     private Author getSelectedAuthor() {
@@ -160,6 +168,23 @@ public class BookGUI extends JDialog {
             return newAuthor;
         } else {
             return author;
+        }
+    }
+
+    private void handleCheckboxes() {
+        if (addToMyBooksCheckBox.isSelected()) {
+            user.addToReadBooks(book);
+
+            if (markAsFavoriteCheckBox.isSelected()) {
+                user.addToFavoriteBooks(book);
+            } else {
+                user.removeFromFavoriteBooks(book);
+            }
+
+            mongo.replaceDocument("users", MongoController.getBsonFilterFormEnumeration("login", user.getLogin()), user.generateDocument());
+        } else {
+            user.removeFromReadBooks(book);
+            user.removeFromFavoriteBooks(book);
         }
     }
 
