@@ -179,6 +179,10 @@ public class MongoController {
         getCollection(collection).deleteOne(filter);
     }
 
+    public void deleteDocuments(String collection, Bson filter) {
+        getCollection(collection).deleteMany(filter);
+    }
+
     /* Others */
 
     private void checkForNecessaryCollections(String[] necessaryCollections) {

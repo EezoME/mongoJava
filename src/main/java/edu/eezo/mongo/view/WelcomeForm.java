@@ -39,7 +39,7 @@ public class WelcomeForm extends JFrame {
     private boolean isPanelHidden = true;
 
     public WelcomeForm() {
-        super("LIBRARY");
+        super("LIB-APP");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(rootPanel);
         initialize();

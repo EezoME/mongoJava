@@ -96,6 +96,8 @@ public class BookGUI extends JDialog {
         }
         if (book != null) {
             comboBoxAuthor.setSelectedItem(book.getAuthor());
+        } else {
+            comboBoxAuthor.setSelectedIndex(-1);
         }
     }
 

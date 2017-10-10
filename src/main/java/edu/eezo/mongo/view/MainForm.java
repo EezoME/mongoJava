@@ -38,7 +38,7 @@ public class MainForm extends JFrame {
     private boolean isBooksOnTable = false;
 
     public MainForm(User user, MongoController mongoController) {
-        super("LIBRARY");
+        super("LIB-APP");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(rootPanel);
         loggedUser = user;
@@ -75,6 +75,7 @@ public class MainForm extends JFrame {
                 int row = table.getSelectedRow();
                 if (row == -1) {
                     editSelectedBookButton.setEnabled(false);
+                    deleteSelectedRowButton.setEnabled(false);
                     return;
                 }
 
@@ -139,6 +140,7 @@ public class MainForm extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (table.getSelectedRow() == -1) {
+                    deleteSelectedRowButton.setEnabled(false);
                     editSelectedBookButton.setEnabled(false);
                     return;
                 }
@@ -159,6 +161,7 @@ public class MainForm extends JFrame {
         }
 
         editSelectedBookButton.setEnabled(false);
+        deleteSelectedRowButton.setEnabled(false);
     }
 
     private void showAllBooks() {
